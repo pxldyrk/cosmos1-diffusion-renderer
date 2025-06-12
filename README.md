@@ -100,7 +100,7 @@ Explanation on additional arguments can be found inside the script.
 For example,  the `--inference_passes` argument controls which G-buffer maps are estimated and saved by the inverse renderer. By default, it runs all available passes: `basecolor`, `normal`, `depth`, `roughness`, and `metallic`. You can specify a subset to only compute certain outputs. 
 
 
-### Relighting 
+### Relighting of images 
 
 Using the gbuffer frames from the previous step `asset/example_results/image_delighting/gbuffer_frames`, we use Forward Renderer to relight images with user provided environment maps. 
 
