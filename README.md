@@ -3,16 +3,18 @@
 ![img](asset/teaser.gif)
 
 **Overview.**
-Cosmos Diffusion Renderer is a video diffusion framework for high-quality image and video de-lighting and re-lighting.
-It extends our original [DiffusionRenderer](https://research.nvidia.com/labs/toronto-ai/DiffusionRenderer/) method by leveraging the powerful Cosmos video model and an improved data curation pipeline.
-The resulting models enable accurate geometry and material estimation, generate higher-quality relighting results, and support longer video sequences, providing a general-purpose framework for video lighting control, randomization, and editing. 
-
-**[Paper](https://arxiv.org/abs/2501.18590) | [Project Page](https://research.nvidia.com/labs/toronto-ai/DiffusionRenderer/)**
+Cosmos DiffusionRenderer is a video diffusion framework for high-quality image and video de-lighting and re-lighting.
+It is a major update of our original [DiffusionRenderer](https://research.nvidia.com/labs/toronto-ai/DiffusionRenderer/) method, achieving significantly higher-quality results, powered by NVIDIA Cosmos and an improved data curation pipeline.   
 
 
-## News 
--  [June 11, 2025] Released our [video demo](https://www.youtube.com/watch?v=Q3xhYNbXM9c) and [blog](https://blogs.nvidia.com/blog/cvpr-2025-ai-research-diffusionrenderer/) on Cosmos Diffusion Renderer. 
--  [June 11, 2025] Released the code and model weights for the academic version of DiffusionRenderer. This version reproduces the results in our paper. Explore the [GitHub repo](https://github.com/nv-tlabs/diffusion-renderer) and [model weights](https://huggingface.co/collections/nexuslrf/diffusionrenderer-svd-68472d636e85c29b6c25422f)! 
+**[Paper](https://arxiv.org/abs/2501.18590) | [Project Page](https://research.nvidia.com/labs/toronto-ai/DiffusionRenderer/) | [Demo Video](https://www.youtube.com/watch?v=Q3xhYNbXM9c) | [Blog](https://blogs.nvidia.com/blog/cvpr-2025-ai-research-diffusionrenderer/)**
+
+
+## 🚀 News 
+-  [June 12, 2025] 🔥 Released Cosmos DiffusionRenderer code and model weights in this repo!  
+-  [June 11, 2025] 🎬 Released our [video demo](https://www.youtube.com/watch?v=Q3xhYNbXM9c) and [blog](https://blogs.nvidia.com/blog/cvpr-2025-ai-research-diffusionrenderer/) on Cosmos DiffusionRenderer. 
+-  [June 11, 2025] 🔥 Released the code and model weights for the academic version of DiffusionRenderer. This version reproduces the results in our paper. Check the [GitHub repo](https://github.com/nv-tlabs/diffusion-renderer) and [model weights](https://huggingface.co/collections/nexuslrf/diffusionrenderer-svd-68472d636e85c29b6c25422f)! 
+
 
 ## Installation
 
@@ -78,7 +80,7 @@ Approximately 16GB of GPU VRAM is recommended. If you encounter out-of-memory er
 
 ### Inverse rendering of images 
 
-This will estimate geometry, albedo, and lighting information (G-buffers) from each input image using the pre-trained Inverse Renderer model. This task is also known as de-lighting. The inference script is `cosmos_predict1/diffusion/inference/inference_inverse_renderer.py`. 
+This will estimate albedo, metallic, roughness, depth, normals (G-buffers) from each input image using the pre-trained Inverse Renderer model. The inference script is `cosmos_predict1/diffusion/inference/inference_inverse_renderer.py`. 
 
 To perform inverse rendering on a set of images, use the following command: 
 ```bash
@@ -88,8 +90,8 @@ CUDA_HOME=$CONDA_PREFIX PYTHONPATH=$(pwd) python cosmos_predict1/diffusion/infer
     --video_save_folder=asset/example_results/image_delighting/ --save_video=False
 ```
 
-The parameters here: 
-- `--checkpoint_dir` specifies the directory containing model checkpoints, use default .
+The configs here: 
+- `--checkpoint_dir` specifies the directory containing model checkpoints, use default `checkpoints/`.
 - `--diffusion_transformer_dir` selects the specific model variant to use.
 - `--dataset_path` points to the folder with your input images.
 - `--num_video_frames 1` processes each image individually (as a single frame).
@@ -97,7 +99,7 @@ The parameters here:
 - `--save_video=False` disables saving a video file, since we're processing images. 
 
 Explanation on additional arguments can be found inside the script. 
-For example,  the `--inference_passes` argument controls which G-buffer maps are estimated and saved by the inverse renderer. By default, it runs all available passes: `basecolor`, `normal`, `depth`, `roughness`, and `metallic`. You can specify a subset to only compute certain outputs. 
+Additionally,  the `--inference_passes` argument controls which G-buffer maps are estimated and saved by the inverse renderer. By default, it runs on five passes: `basecolor`, `normal`, `depth`, `roughness`, and `metallic`. You can specify a subset to only compute certain outputs. 
 
 
 ### Relighting of images 
@@ -111,9 +113,11 @@ CUDA_HOME=$CONDA_PREFIX PYTHONPATH=$(pwd) python cosmos_predict1/diffusion/infer
     --envlight_ind 0 1 2 3 --use_custom_envmap=True \
     --video_save_folder=asset/example_results/image_relighting/
 ```
-Here, the `--envlight_ind 0 1 2 3` argument specifies which environment maps (HDRIs) to use for relighting. Each number corresponds to a different predefined lighting environment included with the code (`ENV_LIGHT_PATH_LIST`). By providing multiple indices (e.g., `0 1 2 3`), the forward renderer will relight each input using all selected environment maps, producing multiple relit outputs per input. You can choose a subset (e.g., `--envlight_ind 0 2`) to use only specific lighting conditions. 
+Here, the `--envlight_ind 0 1 2 3` argument specifies which environment maps (HDRIs) to use for relighting. 
+Each number corresponds to a different predefined lighting environment included with the code (check `ENV_LIGHT_PATH_LIST` in `inference_forward_renderer.py`). 
 
-The script will produce results in `asset/example_results/image_relighting/`. 
+By providing multiple indices (e.g., `0 1 2 3`), the forward renderer will relight each input using all selected environment maps, producing multiple relit outputs per input. You can choose a subset (e.g., `--envlight_ind 0 2`) to use only specific lighting conditions. 
+This script will produce results in `asset/example_results/image_relighting/`. 
 
 
 ### Illumination randomization of images 
@@ -126,7 +130,7 @@ CUDA_HOME=$CONDA_PREFIX PYTHONPATH=$(pwd) python cosmos_predict1/diffusion/infer
     --envlight_ind 0 1 2 3 --use_custom_envmap=False \
     --video_save_folder=asset/example_results/image_relighting_random/
 ```
-Here `--use_custom_envmap` is set to `False`. 
+by setting `--use_custom_envmap` to `False`. 
 
 The script will produce results in `asset/example_results/image_relighting_random/`. 
 
@@ -135,7 +139,7 @@ The script will produce results in `asset/example_results/image_relighting_rando
 
 This example uses videos placed in the `asset/examples/video_examples/` folder. The model will process each video in the folder; using fewer videos will reduce the total processing time.
 
-The peak GPU memory usage is ~24GB. If you encounter out-of-memory errors, add `--offload_diffusion_transformer --offload_tokenizer` to the command to reduce GPU memory usage. 
+The peak GPU memory usage is ~27GB. If you encounter out-of-memory errors, add `--offload_diffusion_transformer --offload_tokenizer` to the command to reduce GPU memory usage. 
 
 
 ### Extract frames from videos  
@@ -185,11 +189,11 @@ CUDA_HOME=$CONDA_PREFIX PYTHONPATH=$(pwd) python cosmos_predict1/diffusion/infer
 
 ## License and Contact
 
-Cosmos Diffusion Renderer source code is released under the [Apache 2 License](https://www.apache.org/licenses/LICENSE-2.0).
+Cosmos DiffusionRenderer source code is released under the [Apache 2 License](https://www.apache.org/licenses/LICENSE-2.0).
 Models are released under the [NVIDIA Open Model License](https://www.nvidia.com/en-us/agreements/enterprise-software/nvidia-open-model-license). 
 
 For business inquiries, please visit our website and submit the form: [NVIDIA Research Licensing](https://www.nvidia.com/en-us/research/inquiries/).
-For technical questions related to the model, please contact [Zian Wang](zianw@nvidia.com).  
+For technical questions related to the model, please contact Zian Wang. 
 
 
 ## Citation
