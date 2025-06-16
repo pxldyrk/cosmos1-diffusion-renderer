@@ -1,4 +1,9 @@
+__pycache__/
+
 asset/.DS_Store
 asset/examples/.DS_Store
 asset/examples/hdri_examples/.DS_Store
 asset/examples/image_examples/.DS_Store
+asset/example_results
+asset/examples/video_frames_examples
+checkpoints
