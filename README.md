@@ -1,19 +1,19 @@
-# DiffusionRenderer (Cosmos): Neural Inverse and Forward Rendering with Video Diffusion Models
+# Cosmos-Transfer1-DiffusionRenderer
 
-![img](asset/teaser.gif)
 
-**Overview.**
-Cosmos DiffusionRenderer is a video diffusion framework for high-quality image and video de-lighting and re-lighting.
-It is a major update of our original [DiffusionRenderer](https://research.nvidia.com/labs/toronto-ai/DiffusionRenderer/) method, achieving significantly higher-quality results, powered by NVIDIA Cosmos and an improved data curation pipeline.   
-
+Cosmos-Transfer1-DiffusionRenderer is a dedicated video relighting framework based on [NVIDIA Cosmos World Foundation Models](https://www.nvidia.com/en-us/ai/cosmos/), designed for high-quality de-lighting and re-lighting of input image or videos.
+It enables controllable video lighting manipulation, editing, and synthetic data augmentation—supporting physical AI systems to train perception and policy models with improved robustness to varying lighting conditions.
+It is powered by NVIDIA’s Cosmos framework and builds on the research project [DiffusionRenderer](https://research.nvidia.com/labs/toronto-ai/DiffusionRenderer/), with an improved data pipeline and enhanced visual fidelity.
 
 **[Paper](https://arxiv.org/abs/2501.18590) | [Project Page](https://research.nvidia.com/labs/toronto-ai/DiffusionRenderer/) | [Demo Video](https://www.youtube.com/watch?v=Q3xhYNbXM9c) | [Blog](https://blogs.nvidia.com/blog/cvpr-2025-ai-research-diffusionrenderer/)**
 
+![img](asset/teaser.gif)
+
 
 ## 🚀 News 
--  [June 12, 2025] 🔥 Released Cosmos DiffusionRenderer code and model weights in this repo!  
--  [June 11, 2025] 🎬 Released our [video demo](https://www.youtube.com/watch?v=Q3xhYNbXM9c) and [blog](https://blogs.nvidia.com/blog/cvpr-2025-ai-research-diffusionrenderer/) on Cosmos DiffusionRenderer. 
--  [June 11, 2025] 🔥 Released the code and model weights for the academic version of DiffusionRenderer. This version reproduces the results in our paper. Check the [GitHub repo](https://github.com/nv-tlabs/diffusion-renderer) and [model weights](https://huggingface.co/collections/nexuslrf/diffusionrenderer-svd-68472d636e85c29b6c25422f)! 
+-  [June 12, 2025] 🔥 Released Cosmos-Transfer1-DiffusionRenderer code and model weights in this repo!  
+-  [June 11, 2025] 🎬 Released our [video demo](https://www.youtube.com/watch?v=Q3xhYNbXM9c) and [blog](https://blogs.nvidia.com/blog/cvpr-2025-ai-research-diffusionrenderer/) on Cosmos-Transfer1-DiffusionRenderer. 
+-  [June 11, 2025] 🔥 Released the code and model weights for the academic version of DiffusionRenderer. This version reproduces the results in our paper. Check the [GitHub repo](https://github.com/nv-tlabs/diffusion-renderer) and [model weights](https://huggingface.co/collections/nexuslrf/diffusionrenderer-svd-68472d636e85c29b6c25422f). 
 
 
 ## Installation
@@ -21,13 +21,13 @@ It is a major update of our original [DiffusionRenderer](https://research.nvidia
 ### Minimum requirements
 
 - Python 3.10
-- NVIDIA GPU with at least 16GB VRAM, recommend to have >=24GB VRAM 
+- NVIDIA GPU with at least 16GB VRAM, recommend to have >=48GB VRAM 
 - NVIDIA drivers and CUDA 12.0 or higher
 - At least 70GB free disk space
 
 The installation has been tested on:
 - Ubuntu 20.04
-- NVIDIA A100 GPU (80GB VRAM), NVIDIA A5000 GPU (24GB VRAM)
+- NVIDIA A100 GPU (80GB VRAM), NVIDIA A6000 GPU (48GB VRAM)
 
 
 ### Conda environment 
@@ -58,7 +58,7 @@ For platforms other than ubuntu, check [nvdiffrast official documentation](https
 
 ### Download model weights (~56GB) 
 
-The model weights are available on [Hugging Face](https://huggingface.co/collections/zianw/diffusionrenderer-cosmos-6849f2a4da267e55409b8125).
+The model weights are available on [Hugging Face](https://huggingface.co/collections/zianw/cosmos-transfer1-diffusionrenderer-6849f2a4da267e55409b8125).
 
 1. Generate a [Hugging Face](https://huggingface.co/settings/tokens) access token (if you haven't done so already). Set the access token to `Read` permission (default is `Fine-grained`).
 
@@ -67,7 +67,7 @@ The model weights are available on [Hugging Face](https://huggingface.co/collect
    huggingface-cli login
    ```
 
-3. Download the DiffusionRenderer model weights from [Hugging Face](https://huggingface.co/collections/zianw/diffusionrenderer-cosmos-6849f2a4da267e55409b8125):
+3. Download the DiffusionRenderer model weights from [Hugging Face](https://huggingface.co/collections/zianw/cosmos-transfer1-diffusionrenderer-6849f2a4da267e55409b8125):
    ```bash
    CUDA_HOME=$CONDA_PREFIX PYTHONPATH=$(pwd) python scripts/download_diffusion_renderer_checkpoints.py --checkpoint_dir checkpoints
    ```
@@ -189,7 +189,7 @@ CUDA_HOME=$CONDA_PREFIX PYTHONPATH=$(pwd) python cosmos_predict1/diffusion/infer
 
 ## License and Contact
 
-Cosmos DiffusionRenderer source code is released under the [Apache 2 License](https://www.apache.org/licenses/LICENSE-2.0).
+Cosmos-Transfer1-DiffusionRenderer source code is released under the [Apache 2 License](https://www.apache.org/licenses/LICENSE-2.0).
 Models are released under the [NVIDIA Open Model License](https://www.nvidia.com/en-us/agreements/enterprise-software/nvidia-open-model-license). 
 
 For business inquiries, please visit our website and submit the form: [NVIDIA Research Licensing](https://www.nvidia.com/en-us/research/inquiries/).
