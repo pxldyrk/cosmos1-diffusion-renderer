@@ -20,7 +20,9 @@ import torch
 from megatron.core import ModelParallelConfig, parallel_state
 from torch import nn
 from torch.distributed import _functional_collectives as funcol
-from transformer_engine.pytorch.attention import _SplitAlongDim, apply_rotary_pos_emb, check_set_window_size
+from transformer_engine.pytorch.utils import SplitAlongDim as _SplitAlongDim
+from transformer_engine.pytorch.attention.rope import apply_rotary_pos_emb
+from transformer_engine.pytorch.attention.dot_product_attention.utils import check_set_window_size
 from transformer_engine.pytorch.constants import AttnBiasTypes
 from transformer_engine.pytorch.float8_tensor import Float8Tensor
 from transformer_engine.pytorch.module.linear import Linear as LinearTE

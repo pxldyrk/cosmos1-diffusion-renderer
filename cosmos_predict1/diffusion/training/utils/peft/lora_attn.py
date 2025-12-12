@@ -16,7 +16,7 @@
 import torch
 from einops import rearrange
 from torch.utils.checkpoint import checkpoint
-from transformer_engine.pytorch.attention import apply_rotary_pos_emb
+from transformer_engine.pytorch.attention.rope import apply_rotary_pos_emb
 
 from cosmos_predict1.diffusion.module.attention import Attention
 from cosmos_predict1.diffusion.training.utils.peft.lora_net import LoRALinearLayer, TELoRALinearLayer
