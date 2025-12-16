@@ -108,7 +108,6 @@ class DiffusionText2WorldGenerationPipeline(BaseWorldGenerationPipeline):
         inference_type: str,
         checkpoint_dir: str,
         checkpoint_name: str,
-        checkpoint_filename: str = "model.pt",
         prompt_upsampler_dir: Optional[str] = None,
         enable_prompt_upsampler: bool = True,
         has_text_input: bool = True,
@@ -132,7 +131,6 @@ class DiffusionText2WorldGenerationPipeline(BaseWorldGenerationPipeline):
             inference_type: Type of world generation ('text2world' or 'video2world')
             checkpoint_dir: Base directory containing model checkpoints
             checkpoint_name: Name of the diffusion transformer checkpoint to use
-            checkpoint_filename: Checkpoint file to load (default: 'model.pt', use 'model_int8.pt' for quantized)
             prompt_upsampler_dir: Directory containing prompt upsampler model weights
             enable_prompt_upsampler: Whether to use prompt upsampling
             has_text_input: Whether the pipeline takes text input for world generation
@@ -158,7 +156,6 @@ class DiffusionText2WorldGenerationPipeline(BaseWorldGenerationPipeline):
         ], "Invalid inference_type, must be 'text2world' or 'video2world'"
 
         self.model_name = MODEL_NAME_DICT[checkpoint_name]
-        self.checkpoint_filename = checkpoint_filename
         self.guidance = guidance
         self.num_steps = num_steps
         self.height = height
@@ -182,7 +179,6 @@ class DiffusionText2WorldGenerationPipeline(BaseWorldGenerationPipeline):
         self.enable_prompt_upsampler = enable_prompt_upsampler
         self.offload_prompt_upsampler = offload_prompt_upsampler
 
-
         self.prompt_upsampler = None
         if enable_prompt_upsampler and not offload_prompt_upsampler:
             self._load_prompt_upsampler_model()
@@ -201,14 +197,9 @@ class DiffusionText2WorldGenerationPipeline(BaseWorldGenerationPipeline):
 
     def _load_network(self):
         if self.checkpoint_name.endswith(".pt"):
-            ckpt_path = f"{self.checkpoint_dir}/{self.checkpoint_name}"
+            load_network_model(self.model, f"{self.checkpoint_dir}/{self.checkpoint_name}")
         else:
-            # Use checkpoint_filename if specified (e.g., for quantized 'model_int8.pt')
-            # Otherwise default to 'model.pt'
-            filename = getattr(self, 'checkpoint_filename', 'model.pt')
-            ckpt_path = f"{self.checkpoint_dir}/{self.checkpoint_name}/{filename}"
-        
-        load_network_model(self.model, ckpt_path)
+            load_network_model(self.model, f"{self.checkpoint_dir}/{self.checkpoint_name}/model.pt")
 
         if distributed.get_world_size() > 1:
             process_group = parallel_state.get_context_parallel_group()
