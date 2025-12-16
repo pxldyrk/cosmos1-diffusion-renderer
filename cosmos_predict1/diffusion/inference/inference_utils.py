@@ -319,14 +319,72 @@ def load_model_by_config(
     return model
 
 
+def dequantize_weight_from_int8(quantized: dict) -> torch.Tensor:
+    """
+    Dequantize an int8 weight tensor back to float.
+    
+    Args:
+        quantized: Dict with 'data', 'scale', 'quantized' keys
+        
+    Returns:
+        Dequantized float tensor
+    """
+    if not quantized.get('quantized', False):
+        return quantized['data']
+    
+    weight_int8 = quantized['data']
+    scale = quantized['scale']
+    
+    if weight_int8.dim() > 1 and scale is not None:
+        scale = scale.view(-1, *([1] * (weight_int8.dim() - 1)))
+    
+    return weight_int8.to(torch.float32) * scale.to(torch.float32)
+
+
+def load_quantized_state_dict(path: str) -> dict:
+    """
+    Load a quantized checkpoint and dequantize all weights.
+    
+    This loads int8 quantized checkpoints created by quantize_model.py
+    and converts them back to float tensors for inference.
+    
+    Memory usage during loading is much lower since the file is ~4x smaller.
+    
+    Args:
+        path: Path to the quantized checkpoint (model_int8.pt)
+        
+    Returns:
+        State dict with all tensors dequantized to float
+    """
+    log.info(f"Loading quantized checkpoint from: {path}")
+    quantized_state = torch.load(path, map_location='cpu')
+    
+    state_dict = {}
+    for key, value in quantized_state.items():
+        if isinstance(value, dict) and 'data' in value:
+            state_dict[key] = dequantize_weight_from_int8(value)
+        else:
+            state_dict[key] = value
+    
+    log.info(f"Loaded {len(state_dict)} tensors from quantized checkpoint")
+    return state_dict
+
+
 def load_network_model(model: DiffusionT2WModel, ckpt_path: str):
     with skip_init_linear():
         model.set_up_model()
-    try:
-        net_state_dict = torch.load(ckpt_path, map_location="cpu", weights_only=True)
-    except Exception:
-        # Posttrained models can be loaded with weights_only=False
-        net_state_dict = torch.load(ckpt_path, map_location="cpu", weights_only=False)
+    
+    # Check if this is a quantized checkpoint (model_int8.pt)
+    if ckpt_path.endswith('_int8.pt'):
+        log.info("Detected quantized checkpoint, using quantized loader...")
+        net_state_dict = load_quantized_state_dict(ckpt_path)
+    else:
+        try:
+            net_state_dict = torch.load(ckpt_path, map_location="cpu", weights_only=True)
+        except Exception:
+            # Posttrained models can be loaded with weights_only=False
+            net_state_dict = torch.load(ckpt_path, map_location="cpu", weights_only=False)
+    
     if "model" in net_state_dict:
         model_state_dict = net_state_dict["model"]
         if "ema" in net_state_dict and model.config.peft_control and model.config.peft_control.enabled:
@@ -340,6 +398,7 @@ def load_network_model(model: DiffusionT2WModel, ckpt_path: str):
 
     log.debug(non_strict_load_model(model.model, net_state_dict))
     model.cuda()
+
 
 
 def load_tokenizer_model(model: DiffusionT2WModel, tokenizer_dir: str):
