@@ -7,3 +7,4 @@ asset/examples/image_examples/.DS_Store
 asset/example_results
 asset/examples/video_frames_examples
 checkpoints
+*.egg-info/
